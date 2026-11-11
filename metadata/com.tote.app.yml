@@ -1,0 +1,105 @@
+Categories:
+  - Internet
+  - Security
+License: MIT
+AuthorName: AutomatedLabor
+SourceCode: https://github.com/AutomatedLabor/tote
+IssueTracker: https://github.com/AutomatedLabor/tote/issues
+Changelog: https://github.com/AutomatedLabor/tote/releases
+Donate: https://github.com/sponsors/AutomatedLabor
+
+AutoName: Tote
+
+Summary: Multi-profile browser with E2E-encrypted session transfer
+
+Description: |
+  Tote is a multi-profile Android browser that lets you transfer logged-in
+  web sessions between your own devices, end-to-end encrypted.
+
+  WhatsApp Linked Devices, but for web sessions, on mobile.
+
+  You log into a grocery web app on Phone A. 5 minutes later (or 5 weeks later)
+  you want that same logged-in session on Phone B. Tote transfers the session —
+  cookies and all — via an E2E-encrypted relay. No Playwright. No Chromium fork.
+  Just a WebView-based mobile app that owns its cookie jar.
+
+  There is no vendor account. There is no cloud copy of your sessions. The relay
+  cannot read your data.
+
+  Features:
+    * Multi-profile browsing (no shared cookies between profiles)
+    * Pair devices via QR + 6-digit/3-emoji SAS verification
+    * Send a logged-in session to a paired device (encrypted in transit)
+    * Foreground sync service applies incoming sessions automatically
+    * Truly-live tabs (WebView pool with saveState/restoreState — no reload on tab switch)
+    * Recovery code (12-word BIP-39 mnemonic, Argon2id-derived master key)
+    * Kill switch (NUKE 24h cooldown + DURESS immediate wipe)
+    * Material 3 theme + Material You dynamic color
+    * Adaptive launcher icon
+    * No analytics. No telemetry. No accounts.
+
+  Crypto: Ed25519 (signing), X25519 (ECDH), XChaCha20-Poly1305-IETF (AEAD),
+  Argon2id (memory-hard KDF), HKDF-SHA256 (key derivation), AndroidKeyStore
+  AES-256-GCM master key (hardware-backed on TEE/StrongBox, biometric-protected
+  since v1.1.0).
+
+  Anti-fraud bright line (non-negotiable): Tote does NOT forge TLS/JA3/JA4/canvas
+  fingerprints. We move your own sessions across your own devices; we do not
+  defeat site security.
+
+  Source code: https://github.com/AutomatedLabor/tote
+  Relay source: https://github.com/AutomatedLabor/tote-relay
+
+RepoType: git
+Repo: https://github.com/AutomatedLabor/tote.git
+
+Builds:
+  - versionName: 1.0.0-alpha1
+    versionCode: 7
+    commit: v1.0.0-alpha1
+    subdir: app
+    gradle:
+      - yes
+    output: build/outputs/apk/release/app-release.apk
+    prebuild: |-
+      # The release build falls back to the debug signing config if no
+      # keystore is provided. For F-Droid, we want the F-Droid signing key,
+      # not the upstream release keystore — so we leave keystore.properties
+      # absent.
+      echo "Building unsigned release APK for F-Droid signing"
+
+MaintainerNotes: |
+  Tote is a multi-profile browser with E2E-encrypted session transfer.
+  Releases are tagged on GitHub Releases with .sha256 sidecar. The upstream
+  release keystore (cert SHA-256 df96cae5...) is NOT used for F-Droid builds —
+  F-Droid signs with its own keystore.
+
+  All dependencies are FLOSS-compatible:
+    - lazysodium-java (ISC) — JNA wrapper around libsodium
+    - jna (Apache-2.0 / LGPL-2.1) — Java Native Access
+    - CameraX (Apache-2.0) — AndroidX camera library
+    - ZXing (Apache-2.0) — QR code generation/detection
+    - OkHttp (Apache-2.0) — HTTP client
+    - kotlinx-serialization (Apache-2.0) — JSON/CBOR serialization
+    - kotlinx-coroutines (Apache-2.0) — coroutine support
+    - com.google.android.material (Apache-2.0) — Material Components
+    - androidx.* (Apache-2.0) — AndroidX libraries
+
+  Note: jna is LGPL-2.1 — F-Droid accepts LGPL but the user must be able to
+  replace the JNA native libraries. Tote ships the lazysodium-android .so
+  files per-ABI inside the APK (via the lazysodium-android artifact), which
+  satisfies the LGPL "user-replaceable" requirement since APKs are
+  user-installable.
+
+  The relay (https://github.com/AutomatedLabor/tote-relay) is a separate Go
+  binary that can be self-hosted. The default relay URL (relay.tote.app) is
+  NOT hardcoded — users can change it in Settings (TODO at v1.0.0 ship).
+  For the alpha, the relay URL is hardcoded in ToteApplication.kt + the
+  pairing QR payload. Self-hosted relays require building from source with
+  a custom default URL.
+
+AutoUpdateMode: Version v%v
+UpdateCheckMode: HTTP
+UpdateCheckData: https://api.github.com/repos/AutomatedLabor/tote/releases/latest
+CurrentVersion: 1.0.0-alpha1
+CurrentVersionCode: 7
